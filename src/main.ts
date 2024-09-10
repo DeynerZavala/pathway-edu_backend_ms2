@@ -3,17 +3,14 @@ import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  // Habilitar CORS sin restricciones (NO RECOMENDADO PARA PRODUCCIÓN)
   app.enableCors({
-    origin: (origin, callback) => {
-      // Permitir cualquier origen, pero asegúrate de que no esté vacío
-      if (origin) {
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
-      }
-    },
-    credentials: true,  // Habilitar credenciales (cookies, tokens)
+    origin: '*',  // Permite cualquier origen
+    methods: 'GET,POST,PUT,DELETE',  // Permite estos métodos
+    allowedHeaders: '*',  // Permite cualquier cabecera
+    credentials: false,  // No requiere credenciales
   });
   await app.listen(3000);
 }
 bootstrap();
+git
