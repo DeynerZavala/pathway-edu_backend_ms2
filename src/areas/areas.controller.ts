@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Param, Put, Delete } from '@nestjs/common'
 import { AreasService } from './areas.service';
 import { Area } from './area.entity';
 
-@Controller('api/v2/areas')
+@Controller('api/areas')
 export class AreasController {
   constructor(private readonly areasService: AreasService) {}
 

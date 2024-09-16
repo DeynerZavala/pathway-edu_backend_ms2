@@ -4,7 +4,7 @@ import { UserTestResult } from './user-test-result.entity';
 import { Area } from '../areas/area.entity';
 
 
-@Controller('api/v2/user-test-results')
+@Controller('api/user-test-results')
 export class UserTestResultsController {
   constructor(private readonly userTestResultsService: UserTestResultsService,) {}
 
