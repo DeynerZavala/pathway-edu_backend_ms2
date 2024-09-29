@@ -13,7 +13,7 @@ RUN npm install
 # Copia el resto del código fuente
 COPY . .
 
-# Compila el código TypeScript
+# Compila el código 
 RUN npm run build
 
 # Expone el puerto en el que corre la aplicación
