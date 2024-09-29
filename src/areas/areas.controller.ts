@@ -1,38 +1,40 @@
-import { Controller, Get, Post, Body, Param, Put, Delete } from '@nestjs/common';
-import { AreasService } from './areas.service';
+import { Controller, Injectable } from '@nestjs/common';
+import { MessagePattern } from '@nestjs/microservices';
 import { Area } from './area.entity';
+import { AreasService } from './areas.service';
 
-@Controller('api/areas')
+@Controller()
 export class AreasController {
   constructor(private readonly areasService: AreasService) {}
 
-  // CREATE a new area
-  @Post()
-  async create(@Body('areaName') areaName: string): Promise<Area> {
-    return this.areasService.create(areaName);
+  // CREATE
+  @MessagePattern({ cmd: 'create_area' })
+  async create(areaData: { areaName: string }): Promise<Area> {
+    return this.areasService.create(areaData.areaName);
   }
 
-  // READ all areas
-  @Get()
+  // READ all
+  @MessagePattern({ cmd: 'get_all_areas' })
   async findAll(): Promise<Area[]> {
     return this.areasService.findAll();
   }
 
-  // READ one area by id
-  @Get(':id')
-  async findOne(@Param('id') id: string): Promise<Area> {
+  // READ one
+  @MessagePattern({ cmd: 'get_area_by_id' })
+  async findOne(id: string): Promise<Area> {
     return this.areasService.findOne(id);
   }
 
-  // UPDATE an area by id
-  @Put(':id')
-  async update(@Param('id') id: string, @Body('areaName') areaName: string): Promise<Area> {
+  // UPDATE
+  @MessagePattern({ cmd: 'update_area' })
+  async update(data: { id: string; areaName: string }): Promise<Area> {
+    const { id, areaName } = data;
     return this.areasService.update(id, areaName);
   }
 
-  // DELETE an area by id
-  @Delete(':id')
-  async remove(@Param('id') id: string): Promise<void> {
+  // DELETE
+  @MessagePattern({ cmd: 'delete_area' })
+  async remove(id: string): Promise<void> {
     return this.areasService.remove(id);
   }
 }

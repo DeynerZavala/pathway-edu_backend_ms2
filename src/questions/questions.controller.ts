@@ -1,38 +1,40 @@
-import { Controller, Get, Post, Body, Param, Put, Delete } from '@nestjs/common';
+import { Controller, Injectable } from '@nestjs/common';
+import { MessagePattern } from '@nestjs/microservices';
 import { QuestionsService } from './questions.service';
 import { Question } from './question.entity';
 
-@Controller('api/questions')
+@Controller()
 export class QuestionsController {
   constructor(private readonly questionsService: QuestionsService) {}
 
   // CREATE
-  @Post()
-  async create(@Body() questionData: Partial<Question>): Promise<Question> {
+  @MessagePattern({ cmd: 'create_question' })
+  async create(questionData: Partial<Question>): Promise<Question> {
     return this.questionsService.create(questionData);
   }
 
   // READ all
-  @Get()
+  @MessagePattern({ cmd: 'get_all_questions' })
   async findAll(): Promise<Question[]> {
     return this.questionsService.findAll();
   }
 
   // READ one
-  @Get(':id')
-  async findOne(@Param('id') id: string): Promise<Question> {
+  @MessagePattern({ cmd: 'get_question_by_id' })
+  async findOne(id: string): Promise<Question> {
     return this.questionsService.findOne(id);
   }
 
   // UPDATE
-  @Put(':id')
-  async update(@Param('id') id: string, @Body() updateData: Partial<Question>): Promise<Question> {
+  @MessagePattern({ cmd: 'update_question' })
+  async update(data: { id: string; updateData: Partial<Question> }): Promise<Question> {
+    const { id, updateData } = data;
     return this.questionsService.update(id, updateData);
   }
 
   // DELETE
-  @Delete(':id')
-  async remove(@Param('id') id: string): Promise<void> {
+  @MessagePattern({ cmd: 'delete_question' })
+  async remove(id: string): Promise<void> {
     return this.questionsService.remove(id);
   }
 }
