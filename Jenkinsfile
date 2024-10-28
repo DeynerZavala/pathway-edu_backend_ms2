@@ -35,6 +35,11 @@ pipeline {
                                 docker run -d --name db2 --network=${DOCKER_NETWORK} -e POSTGRES_USER=${DB_USERNAME} -e POSTGRES_PASSWORD=${DB_PASSWORD} -e POSTGRES_DB=${DB_NAME2} -v db2_data:/var/lib/postgresql/data postgres;
                             fi
 
+                            # Reiniciar el contenedor del microservicio si está en ejecución
+                            if [ \$(docker ps -q -f name=ms2) ]; then
+                                docker stop ms2 && docker rm ms2;
+                            fi
+
                             # Iniciar Microservicio
                             docker run -d --network=${DOCKER_NETWORK} --name ms2 -p 3002:3002 \
                                 -e DB_HOST=db2 -e DB_PORT=5432 -e DB_USERNAME=${DB_USERNAME} \
