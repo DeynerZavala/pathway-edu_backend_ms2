@@ -53,10 +53,11 @@ pipeline {
                 }
             }
         }
-      stage('Clean Docker Environment') {
-        steps {
-            script {
-                 sh 'docker system prune -a -f --volumes'
+
+        stage('Clean Docker Environment') {
+            steps {
+                script {
+                    sh 'docker system prune -a -f --volumes'
                 }
             }
         }
