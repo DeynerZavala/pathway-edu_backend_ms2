@@ -3,15 +3,7 @@ pipeline {
 
     stages {
 
-        stage('Clean Unused Docker Images') {
-            steps {
-                script {
-                    // Eliminar contenedores detenidos, imágenes sin etiquetas y no utilizadas, pero mantener el caché de construcción
-                    sh 'docker container prune -f'          // Elimina contenedores detenidos
-                    sh 'docker image prune -a -f'           // Elimina imágenes no utilizadas
-                }
-            }
-        }
+
         
         stage('Clone Repository') {
             steps {
