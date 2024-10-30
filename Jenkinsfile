@@ -2,9 +2,6 @@ pipeline {
     agent any
 
     stages {
-
-
-        
         stage('Clone Repository') {
             steps {
                 git branch: 'master', url: 'https://github.com/DeynerZavala/pathway-edu_backend_ms2.git'
@@ -33,17 +30,19 @@ pipeline {
                     sh 'gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS'
                     sh """
                         gcloud compute ssh ${GCP_INSTANCE} --project=${GCP_PROJECT} --zone=${GCP_ZONE} --command="
-                            # Verificar y crear la red Docker si no existe
+                            # Crear la red Docker si no existe
                             if ! docker network inspect ${DOCKER_NETWORK} &> /dev/null; then
                                 docker network create ${DOCKER_NETWORK};
                             fi;
 
-                            # Verificar y ejecutar contenedor de base de datos si no está en ejecución
+                            # Verificar y crear/iniciar contenedor de PostgreSQL
                             if [ \$(docker ps -aq -f name=${DB_HOST2}) ]; then
+                                # Si el contenedor existe pero no está corriendo, iniciarlo
                                 if [ ! \$(docker ps -q -f name=${DB_HOST2}) ]; then
                                     docker start ${DB_HOST2};
                                 fi;
                             else
+                                # Crear y ejecutar el contenedor de la base de datos si no existe
                                 docker run -d --name ${DB_HOST2} --network=${DOCKER_NETWORK} -e POSTGRES_USER=${DB_USERNAME} -e POSTGRES_PASSWORD=${DB_PASSWORD} -e POSTGRES_DB=${DB_NAME2} -v pgdata_ms2:/var/lib/postgresql/data -p ${DB_PORT2}:5432 postgres;
                             fi;
 
@@ -56,8 +55,8 @@ pipeline {
                             docker exec -i ${DB_HOST2} psql -U ${DB_USERNAME} -tc \\"SELECT 1 FROM pg_database WHERE datname = '${DB_NAME2}'\\" | grep -q 1 || docker exec -i ${DB_HOST2} psql -U ${DB_USERNAME} -c \\"CREATE DATABASE \\"${DB_NAME2}\\";";
                             
                             # Eliminar el contenedor de microservicio si ya existe y ejecutarlo de nuevo
-                            if [ \$(docker ps -aq -f name=ms1) ]; then
-                                docker stop ms1 && docker rm ms1;
+                            if [ \$(docker ps -aq -f name=ms2) ]; then
+                                docker stop ms2 && docker rm ms2;
                             fi;
 
                             # Cargar y ejecutar el contenedor del microservicio
