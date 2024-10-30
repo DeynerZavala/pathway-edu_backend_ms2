@@ -31,21 +31,11 @@ pipeline {
                     sh """
                         gcloud compute ssh ${GCP_INSTANCE} --project=${GCP_PROJECT} --zone=${GCP_ZONE} --command="
                             # Crear la red Docker si no existe
-                            if ! docker network inspect ${DOCKER_NETWORK} &> /dev/null; then
-                                docker network create ${DOCKER_NETWORK};
-                            fi;
+                            docker network create ${DOCKER_NETWORK};
 
                             # Verificar y crear/iniciar contenedor de PostgreSQL
-                            if [ \$(docker ps -aq -f name=${DB_HOST2}) ]; then
-                                # Si el contenedor existe pero no está corriendo, iniciarlo
-                                if [ ! \$(docker ps -q -f name=${DB_HOST2}) ]; then
-                                    docker start ${DB_HOST2};
-                                fi;
-                            else
-                                # Crear y ejecutar el contenedor de la base de datos si no existe
-                                docker run -d --name ${DB_HOST2} --network=${DOCKER_NETWORK} -e POSTGRES_USER=${DB_USERNAME} -e POSTGRES_PASSWORD=${DB_PASSWORD} -e POSTGRES_DB=${DB_NAME2} -v pgdata_ms2:/var/lib/postgresql/data -p ${DB_PORT2}:5432 postgres;
-                            fi;
 
+                            docker start ${DB_HOST2};
                             # Esperar hasta que PostgreSQL esté listo
                             until docker exec ${DB_HOST2} pg_isready -U ${DB_USERNAME}; do
                                 sleep 5;
