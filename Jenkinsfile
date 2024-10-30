@@ -10,6 +10,7 @@ pipeline {
                 }
             }
         }
+        
         stage('Clone Repository') {
             steps {
                 git branch: 'master', url: 'https://github.com/DeynerZavala/pathway-edu_backend_ms2.git'
@@ -38,31 +39,44 @@ pipeline {
                     sh 'gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS'
                     sh """
                         gcloud compute ssh ${GCP_INSTANCE} --project=${GCP_PROJECT} --zone=${GCP_ZONE} --command="
+                            # Verificar y crear la red Docker si no existe
                             if ! docker network inspect ${DOCKER_NETWORK} &> /dev/null; then
                                 docker network create ${DOCKER_NETWORK};
                             fi;
-                            if [ \$(docker ps -q -f name=${DB_HOST2}) ]; then
-                                docker start ${DB_HOST2};
-                            elif [ ! \$(docker ps -aq -f name=${DB_HOST2}) ]; then
+
+                            # Verificar y ejecutar contenedor de base de datos si no está en ejecución
+                            if [ \$(docker ps -aq -f name=${DB_HOST2}) ]; then
+                                if [ ! \$(docker ps -q -f name=${DB_HOST2}) ]; then
+                                    docker start ${DB_HOST2};
+                                fi;
+                            else
                                 docker run -d --name ${DB_HOST2} --network=${DOCKER_NETWORK} -e POSTGRES_USER=${DB_USERNAME} -e POSTGRES_PASSWORD=${DB_PASSWORD} -e POSTGRES_DB=${DB_NAME2} -v pgdata_ms2:/var/lib/postgresql/data -p ${DB_PORT2}:5432 postgres;
                             fi;
+
+                            # Esperar hasta que PostgreSQL esté listo
                             until docker exec ${DB_HOST2} pg_isready -U ${DB_USERNAME}; do
                                 sleep 5;
                             done;
+
+                            # Crear la base de datos solo si no existe
                             docker exec -i ${DB_HOST2} psql -U ${DB_USERNAME} -tc \\"SELECT 1 FROM pg_database WHERE datname = '${DB_NAME2}'\\" | grep -q 1 || docker exec -i ${DB_HOST2} psql -U ${DB_USERNAME} -c \\"CREATE DATABASE \\"${DB_NAME2}\\";";
+
+                            # Verificar si el contenedor del microservicio ya está en ejecución y reiniciarlo si es necesario
                             if [ \$(docker ps -q -f name=ms2) ]; then
                                 docker stop ms2 && docker rm ms2;
                             fi;
+
+                            # Cargar y ejecutar el contenedor del microservicio
                             docker load -i /home/jenkins/ms2.tar;
                             docker run -d --name ms2 --network=${DOCKER_NETWORK} -p ${MS_PORT2}:3002 -e DB_HOST=${DB_HOST2} -e DB_PORT=5432 -e DB_USERNAME=${DB_USERNAME} -e DB_PASSWORD=${DB_PASSWORD} -e DB_DATABASE=${DB_NAME2} ms2;
+
+                            # Limpiar el archivo tar después de cargar la imagen
                             rm /home/jenkins/ms2.tar;
                         "
                     """
                 }
             }
         }
-
-
     }
 
     post {
