@@ -5,6 +5,7 @@ docker-compose.yml
 .git
 .env
 src
+test
 
 node_modules
 npm-debug.log
