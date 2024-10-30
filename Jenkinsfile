@@ -41,8 +41,6 @@ pipeline {
                                 sleep 5;
                             done;
 
-                            # Crear la base de datos solo si no existe
-                            docker exec -i ${DB_HOST2} psql -U ${DB_USERNAME} -tc \\"SELECT 1 FROM pg_database WHERE datname = '${DB_NAME2}'\\" | grep -q 1 || docker exec -i ${DB_HOST2} psql -U ${DB_USERNAME} -c \\"CREATE DATABASE \\"${DB_NAME2}\\";";
                             
                             # Eliminar el contenedor de microservicio si ya existe y ejecutarlo de nuevo
                             docker stop ms2 && docker rm ms2;
