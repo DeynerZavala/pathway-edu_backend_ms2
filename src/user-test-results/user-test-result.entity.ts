@@ -1,5 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
 import { Test } from '../tests/test.entity';
+import { Area } from 'src/areas/area.entity';
 
 @Entity('user_test_results')
 export class UserTestResult {
@@ -12,8 +13,8 @@ export class UserTestResult {
   @ManyToOne(() => Test, (test) => test.userTestResults)
   test: Test;
 
-  @Column({ type: 'text' })
-  result_text: string;
+  @ManyToOne(()=> Area,(area)=>area.userTestResults)
+  area: Area;
 
   @Column()
   attempt_number: number;

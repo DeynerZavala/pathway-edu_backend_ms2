@@ -2,6 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, OneToMany, CreateDateColumn } f
 import { Question } from '../questions/question.entity';
 import { UserTestResponse } from '../user-test-responses/user-test-response.entity';
 import { UserTestResult } from '../user-test-results/user-test-result.entity';
+import { TestTemplate } from 'src/test-template/test-template.enity';
 
 @Entity('tests')
 export class Test {
@@ -24,6 +25,10 @@ export class Test {
   // Relación con la entidad `UserTestResponse`
   @OneToMany(() => UserTestResponse, (userTestResponse) => userTestResponse.test)
   userTestResponses: UserTestResponse[];
+
+  // Relación con la entidad `TestTemplate`
+  @OneToMany(()=> TestTemplate,(testTemplate) => testTemplate.test)
+  testTemplate: TestTemplate[];
 
   // Relación con la entidad `UserTestResult`
   @OneToMany(() => UserTestResult, (userTestResult) => userTestResult.test)

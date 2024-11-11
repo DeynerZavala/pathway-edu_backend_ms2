@@ -7,6 +7,7 @@ import { AnswersModule } from './answers/answers.module';
 import { UserTestResponsesModule } from './user-test-responses/user-test-responses.module';
 import { UserTestResultsModule } from './user-test-results/user-test-results.module';
 import { AreasModule } from './areas/areas.module';
+import { TestTemplateModule } from './test-template/test-template.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -20,7 +21,7 @@ import { AreasModule } from './areas/areas.module';
         return {
           type: 'postgres',
           host: configService.get('DB_HOST'),
-          port: +configService.get<number>('DB_PORT'),
+          port: configService.get<number>('DB_PORT'),
           username: configService.get('DB_USERNAME'),
           password: configService.get('DB_PASSWORD'),
           database: configService.get('DB_DATABASE'),
@@ -39,7 +40,8 @@ import { AreasModule } from './areas/areas.module';
     AnswersModule,
     UserTestResponsesModule,
     UserTestResultsModule,
-    AreasModule,  // Añadir el módulo para las áreas
+    AreasModule,
+    TestTemplateModule,
   ],
 })
 export class AppModule {}

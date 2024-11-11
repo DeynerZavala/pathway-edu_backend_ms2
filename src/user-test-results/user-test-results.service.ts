@@ -104,7 +104,7 @@ export class UserTestResultsService {
         const userTestResult = new UserTestResult();
         userTestResult.user_id = userId;
         userTestResult.test = await transactionalEntityManager.findOne(Test, { where: { test_id: testId } });
-        userTestResult.result_text = areaOfInterest;
+        userTestResult.area= await transactionalEntityManager.findOne(Area,{where: {area_name:areaOfInterest}});
         userTestResult.attempt_number = attemptNumber;
         userTestResult.completion_date = new Date();
 
